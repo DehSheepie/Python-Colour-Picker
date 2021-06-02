@@ -1,4 +1,5 @@
 import tkinter as tk
+import json
 
 
 # saved for later hehe ^-^
@@ -10,6 +11,24 @@ def hex_to_rgb(hex_string) -> (int, int, int):
     g = int(string[2] + string[3], 16)
     b = int(string[4] + string[5], 16)
     return r, g, b
+
+
+def add_to_file(hex_string):
+    colours = None
+    with open("colour_file.json") as file:
+        try:
+            data = json.load(file)
+            try:
+                colours = data
+                colours["list"].append(hex_string)
+            except ValueError:
+                print(f"Exception {ValueError}")
+                colours = {"list": [hex_string]}
+        except:
+            colours = {"list": [hex_string]}
+
+    with open("colour_file.json", "w") as file:
+        json.dump(colours, file)
 
 
 class ColourPickerWindow:
@@ -36,7 +55,8 @@ class ColourPickerWindow:
         self.hex_input.pack(side=tk.LEFT)
 
         # Button
-        self.preview_hex = tk.Button(self.hex_value_section, text="Preview", command=lambda: self.preview_hex_colour(self.hex_input.get()))
+        self.preview_hex = tk.Button(self.hex_value_section, text="Preview",
+                                     command=lambda: self.preview_hex_colour(self.hex_input.get()))
         self.preview_hex.pack(side=tk.LEFT, padx=10)
 
         # Change Colour values
@@ -90,6 +110,18 @@ class ColourPickerWindow:
                                                                 self.blue_slider.get()))
         self.blue_slider.pack(side=tk.LEFT, padx=20, pady=10)
 
+        # Bottom Section
+        self.bottom_section = tk.Frame(self.window)
+        self.bottom_section.pack(side=tk.TOP)
+
+        self.store_colour = tk.Button(self.bottom_section, text="Store Colour",
+                                      command=lambda: add_to_file(self.colour_display["background"]))
+        self.store_colour.pack()
+
+        self.display_all_colours = tk.Button(self.bottom_section, text="Display Colours",
+                                             command=lambda :self.display_colours())
+        self.display_all_colours.pack()
+
         # Starts the window running
         self.window.mainloop()
 
@@ -111,6 +143,27 @@ class ColourPickerWindow:
     def preview_hex_colour(self, hex_string):
         colour = hex_to_rgb(hex_string)
         self.preview_colour(colour[0], colour[1], colour[2])
+
+    def display_colours(self):
+        with open("colour_file.json") as file:
+
+            data = json.load(file)
+
+            index = 0
+            xpos = 0
+            ypos = 0
+            for row in range(3):
+                for col in range(12):
+                    if index < len(data["list"]):
+                        self.colour_display.create_rectangle(xpos,ypos,xpos+25,ypos+25, fill=data["list"][index])
+                        index +=1
+                    xpos+=25
+                xpos=0
+                ypos+=25
+
+
+
+
 
 
 print(int("f", 16))
