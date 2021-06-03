@@ -120,7 +120,10 @@ class ColourPickerWindow:
 
         self.display_all_colours = tk.Button(self.bottom_section, text="Display Colours",
                                              command=lambda :self.display_colours())
-        self.display_all_colours.pack()
+        self.display_all_colours.pack(pady=10)
+
+        self.display_stored_colours = tk.Canvas(self.bottom_section, width=300, height=100, bg='#fff')
+        self.display_stored_colours.pack(side=tk.TOP)
 
         # Starts the window running
         self.window.mainloop()
@@ -155,7 +158,9 @@ class ColourPickerWindow:
             for row in range(3):
                 for col in range(12):
                     if index < len(data["list"]):
-                        self.colour_display.create_rectangle(xpos,ypos,xpos+25,ypos+25, fill=data["list"][index])
+                        rect = self.display_stored_colours.create_rectangle(xpos,ypos,xpos+25,ypos+25, fill=data["list"][index])
+                        self.display_stored_colours.tag_bind(rect, "<Button-1>", lambda event, hex=self.display_stored_colours.itemcget(rect, "fill"): self.preview_hex_colour(hex))
+                        #)
                         index +=1
                     xpos+=25
                 xpos=0
