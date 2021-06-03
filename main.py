@@ -33,21 +33,23 @@ def add_to_file(hex_string):
 
 class ColourPickerWindow:
     def __init__(self):
+        self.background_colour = "grey55"
         self.window = tk.Tk()
+        self.window.config(bg=self.background_colour)
         self.window.title("Colour Picker")
         self.window.geometry("600x600")
         self.window.minsize(400, 300)
 
         # Top Section
-        self.top_section = tk.Frame(self.window)
+        self.top_section = tk.Frame(self.window, bg=self.background_colour)
         self.top_section.pack(side=tk.TOP)
 
         # Colour Display
-        self.colour_display = tk.Canvas(self.top_section, width=300, height=100, bg='#666')
+        self.colour_display = tk.Canvas(self.top_section, width=300, height=100, bg='#666', bd=1, highlightbackground="black")
         self.colour_display.pack(pady=20, side=tk.TOP)
 
         # Hex Value
-        self.hex_value_section = tk.Frame(self.top_section)
+        self.hex_value_section = tk.Frame(self.top_section, bg=self.background_colour)
         self.hex_value_section.pack(padx=10, pady=10, side=tk.TOP)
 
         # Entry
@@ -60,7 +62,7 @@ class ColourPickerWindow:
         self.preview_hex.pack(side=tk.LEFT, padx=10)
 
         # Change Colour values
-        self.colour_inputs = tk.Frame(self.top_section)
+        self.colour_inputs = tk.Frame(self.top_section, bg=self.background_colour)
         self.colour_inputs.pack(side=tk.TOP)
 
         # Red input
@@ -83,35 +85,35 @@ class ColourPickerWindow:
         self.preview.pack(padx=10, pady=10, side=tk.RIGHT)
 
         # Middle Section
-        self.middle_section = tk.Frame(self.window)
+        self.middle_section = tk.Frame(self.window, bg=self.background_colour)
         self.middle_section.pack(side=tk.TOP)
 
         # Change Colour Sliders
-        self.sliders = tk.Frame(self.middle_section)
+        self.sliders = tk.Frame(self.middle_section, bg=self.background_colour)
         self.sliders.pack(side=tk.TOP)
         # Red Slider
-        self.red_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#f99")
+        self.red_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#f99", highlightthickness=0)
         self.red_slider.bind("<ButtonRelease-1>",
                              lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
                                                                self.blue_slider.get()))
         self.red_slider.pack(side=tk.LEFT, padx=20, pady=10)
 
         # Green Slider
-        self.green_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#9f9")
+        self.green_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#9f9", highlightthickness=0)
         self.green_slider.bind("<ButtonRelease-1>",
                                lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
                                                                  self.blue_slider.get()))
         self.green_slider.pack(side=tk.LEFT, padx=20, pady=10)
 
         # Blue Slider
-        self.blue_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#99f")
+        self.blue_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#99f", highlightthickness=0)
         self.blue_slider.bind("<ButtonRelease-1>",
                               lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
                                                                 self.blue_slider.get()))
         self.blue_slider.pack(side=tk.LEFT, padx=20, pady=10)
 
         # Bottom Section
-        self.bottom_section = tk.Frame(self.window)
+        self.bottom_section = tk.Frame(self.window, bg=self.background_colour)
         self.bottom_section.pack(side=tk.TOP)
 
         self.store_colour = tk.Button(self.bottom_section, text="Store Colour",
@@ -122,9 +124,10 @@ class ColourPickerWindow:
                                              command=lambda :self.display_colours())
         self.display_all_colours.pack(pady=10)
 
-        self.display_stored_colours = tk.Canvas(self.bottom_section, width=300, height=100, bg='#fff')
+        self.display_stored_colours = tk.Canvas(self.bottom_section, width=300, height=100, bg='#fff', bd=1, highlightbackground="black")
         self.display_stored_colours.pack(side=tk.TOP)
 
+        self.display_colours()
         # Starts the window running
         self.window.mainloop()
 
@@ -155,7 +158,7 @@ class ColourPickerWindow:
             index = 0
             xpos = 0
             ypos = 0
-            for row in range(3):
+            for row in range(4):
                 for col in range(12):
                     if index < len(data["list"]):
                         rect = self.display_stored_colours.create_rectangle(xpos,ypos,xpos+25,ypos+25, fill=data["list"][index])
