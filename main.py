@@ -80,11 +80,16 @@ class ColourPickerWindow:
         self.red_slider.bind("<ButtonRelease-1>",
                              lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
                                                                self.blue_slider.get()))
+        self.red_slider.bind("<B1-Motion>",
+                             lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
+                                                               self.blue_slider.get()))
         self.red_slider.pack(side=tk.LEFT, padx=20, pady=10)
-
         # Green Slider
         self.green_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#9f9", highlightthickness=0)
         self.green_slider.bind("<ButtonRelease-1>",
+                               lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
+                                                                 self.blue_slider.get()))
+        self.green_slider.bind("<B1-Motion>",
                                lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
                                                                  self.blue_slider.get()))
         self.green_slider.pack(side=tk.LEFT, padx=20, pady=10)
@@ -92,6 +97,9 @@ class ColourPickerWindow:
         # Blue Slider
         self.blue_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#99f", highlightthickness=0)
         self.blue_slider.bind("<ButtonRelease-1>",
+                              lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
+                                                                self.blue_slider.get()))
+        self.blue_slider.bind("<B1-Motion>",
                               lambda event: self.preview_colour(self.red_slider.get(), self.green_slider.get(),
                                                                 self.blue_slider.get()))
         self.blue_slider.pack(side=tk.LEFT, padx=20, pady=10)
@@ -104,8 +112,8 @@ class ColourPickerWindow:
                                       command=lambda: self.add_to_file(self.colour_display["background"]))
         self.store_colour.pack(pady=10)
 
-        self.display_stored_colours = tk.Canvas(self.bottom_section, width=300, height=100, bg='#fff', bd=1,
-                                                highlightbackground="black")
+        self.display_stored_colours = tk.Canvas(self.bottom_section, width=301, height=101, bg='#fff', bd=0,
+                                                highlightthickness=0)
         self.display_stored_colours.pack(side=tk.TOP)
 
         self.display_colours()
