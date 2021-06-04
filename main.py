@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 import json
-import os
+from os import path
+from os import remove as rm
 from random import randint
 
 
@@ -120,18 +121,37 @@ class ColourPickerWindow:
 
         self.display_colours()
 
-        self.random_colour = tk.Button(self.bottom_section, text="Random Colour", command=self.generate_random_colour)
-        self.random_colour.pack(side=tk.TOP, pady=10)
+
+        self.bottom_buttons = tk.Frame(self.bottom_section, bg=self.background_colour)
+        self.bottom_buttons.pack(side=tk.TOP, pady=10)
+
+        self.random_colour = tk.Button(self.bottom_buttons, text="Random Colour", command=self.generate_random_colour)
+        self.random_colour.pack(side=tk.LEFT)
+
+        self.delete_all = tk.Button(self.bottom_buttons, text="Delete All", command=self.delete_all_colours)
+        self.delete_all.pack(side=tk.LEFT, padx=10)
+
+
 
         # Starts the window running
         self.window.mainloop()
+
+    def delete_all_colours(self):
+        response = tk.messagebox.askyesno(title="Remove Colour",
+                                          message=f"Are you sure you want to remove all colours from the list?\nThis action cannot be undone.")
+        if response:
+            if path.exists("colour_file.json"):
+                rm("colour_file.json")
+            else:
+                tk.messagebox.showinfo(title="No Colours", message="No colours could be found in storage.")
+        self.display_colours()
 
     def generate_random_colour(self):
         self.preview_colour(randint(0, 255), randint(0, 255), randint(0, 255))
 
     def add_to_file(self, hex_string):
         colours = None
-        if not os.path.exists("colour_file.json"):
+        if not path.exists("colour_file.json"):
             file = open("colour_file.json", "w+")
         with open("colour_file.json") as file:
             try:
@@ -183,7 +203,7 @@ class ColourPickerWindow:
 
     def display_colours(self):
         self.display_stored_colours.delete("all")
-        if os.path.exists("colour_file.json"):
+        if path.exists("colour_file.json"):
             with open("colour_file.json") as file:
                 try:
                     data = json.load(file)
