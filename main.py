@@ -52,6 +52,10 @@ class ColourPickerWindow:
         self.colour_inputs = tk.Frame(self.top_section, bg=self.background_colour)
         self.colour_inputs.pack(side=tk.TOP)
 
+        # Where randomise buttons will be added for each colour component
+        self.colour_inputs_random_buttons = tk.Frame(self.top_section, bg=self.background_colour)
+        self.colour_inputs_random_buttons.pack(side=tk.TOP)
+
         # Red input
         self.red_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.red_input.pack(side=tk.LEFT, padx=10)
@@ -78,6 +82,7 @@ class ColourPickerWindow:
         # Change Colour Sliders
         self.sliders = tk.Frame(self.middle_section, bg=self.background_colour)
         self.sliders.pack(side=tk.TOP)
+
         # Red Slider
         self.red_slider = tk.Scale(self.sliders, from_=255, to=0, bg="#f99", highlightthickness=0)
         self.red_slider.bind("<ButtonRelease-1>",
@@ -121,7 +126,6 @@ class ColourPickerWindow:
 
         self.display_colours()
 
-
         self.bottom_buttons = tk.Frame(self.bottom_section, bg=self.background_colour)
         self.bottom_buttons.pack(side=tk.TOP, pady=10)
 
@@ -131,7 +135,26 @@ class ColourPickerWindow:
         self.delete_all = tk.Button(self.bottom_buttons, text="Delete All", command=self.delete_all_colours)
         self.delete_all.pack(side=tk.LEFT, padx=10)
 
+        # Red input randomizer
+        self.red_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Red",
+                                          command=lambda:self.preview_colour(randint(0, 255),
+                                                                      self.green_input.get(),
+                                                                      self.blue_input.get()))
+        self.red_input_random.pack(side=tk.LEFT, padx=10)
 
+        # Green input randomizer
+        self.green_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Green",
+                                            command=lambda:self.preview_colour(self.red_input.get(),
+                                                                        randint(0, 255),
+                                                                        self.blue_input.get()))
+        self.green_input_random.pack(side=tk.LEFT, padx=10)
+
+        # Blue input randomizer
+        self.blue_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Blue",
+                                           command=lambda:self.preview_colour(self.red_input.get(),
+                                                                       self.green_input.get(),
+                                                                       randint(0, 255)))
+        self.blue_input_random.pack(side=tk.LEFT, padx=10)
 
         # Starts the window running
         self.window.mainloop()
@@ -232,6 +255,7 @@ class ColourPickerWindow:
                         ypos += 25
                 except:
                     pass
+
 
 print(int("f", 16))
 value = ColourPickerWindow()
