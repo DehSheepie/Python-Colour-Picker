@@ -1,6 +1,8 @@
 import tkinter as tk
+from tkinter import messagebox
 import json
 import os
+from random import randint
 
 
 # saved for later hehe ^-^
@@ -117,8 +119,15 @@ class ColourPickerWindow:
         self.display_stored_colours.pack(side=tk.TOP)
 
         self.display_colours()
+
+        self.random_colour = tk.Button(self.bottom_section, text="Random Colour", command=self.generate_random_colour)
+        self.random_colour.pack(side=tk.TOP, pady=10)
+
         # Starts the window running
         self.window.mainloop()
+
+    def generate_random_colour(self):
+        self.preview_colour(randint(0, 255), randint(0, 255), randint(0, 255))
 
     def add_to_file(self, hex_string):
         colours = None
@@ -159,15 +168,18 @@ class ColourPickerWindow:
         self.preview_colour(colour[0], colour[1], colour[2])  #
 
     def remove_hex_colour(self, hex_string):
-        with open("colour_file.json", 'r') as file:
-            data = json.load(file)
-            colours = data
-            colours["list"].remove(hex_string)
+        response = tk.messagebox.askyesno(title="Remove Colour",
+                                          message=f"Are you sure you want to remove {hex_string} from the list?")
+        if response:
+            with open("colour_file.json", 'r') as file:
+                data = json.load(file)
+                colours = data
+                colours["list"].remove(hex_string)
 
-        with open("colour_file.json", 'w') as file:
-            file.write(json.dumps(colours))
+            with open("colour_file.json", 'w') as file:
+                file.write(json.dumps(colours))
 
-        self.display_colours()
+            self.display_colours()
 
     def display_colours(self):
         self.display_stored_colours.delete("all")
@@ -200,7 +212,6 @@ class ColourPickerWindow:
                         ypos += 25
                 except:
                     pass
-
 
 print(int("f", 16))
 value = ColourPickerWindow()
