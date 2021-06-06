@@ -35,17 +35,6 @@ class ColourPickerWindow:
         self.delete_popup = True
 
         self.window = tk.Tk()
-
-        # Menu Bar
-        self.main_menu = tk.Menu(self.window)
-
-        # Options Menu
-        self.options_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.options_menu.add_command(label="Toggle Delete Popup", command=self.toggle_delete_popup)
-
-        self.main_menu.add_cascade(label="Options", menu=self.options_menu)
-
-        self.window.config(bg=self.background_colour, menu=self.main_menu)
         self.window.title("Colour Picker")
         self.window.geometry("600x600")
         self.window.minsize(400, 300)
@@ -88,19 +77,22 @@ class ColourPickerWindow:
         # Red input
         self.red_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.red_input.pack(side=tk.LEFT, padx=10)
-        self.red_input.bind("<KeyRelease>", lambda event:self.preview_colour(self.red_input.get(), self.green_input.get(),
-                                                                     self.blue_input.get()))
+        self.red_input.bind("<KeyRelease>",
+                            lambda event: self.preview_colour(self.red_input.get(), self.green_input.get(),
+                                                              self.blue_input.get()))
         # Green input
         self.green_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.green_input.pack(side=tk.LEFT, padx=10)
-        self.green_input.bind("<KeyRelease>", lambda event:self.preview_colour(self.red_input.get(), self.green_input.get(),
-                                                                     self.blue_input.get()))
+        self.green_input.bind("<KeyRelease>",
+                              lambda event: self.preview_colour(self.red_input.get(), self.green_input.get(),
+                                                                self.blue_input.get()))
 
         # Blue input
         self.blue_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.blue_input.pack(side=tk.LEFT, padx=10)
-        self.blue_input.bind("<KeyRelease>", lambda event:self.preview_colour(self.red_input.get(), self.green_input.get(),
-                                                                     self.blue_input.get()))
+        self.blue_input.bind("<KeyRelease>",
+                             lambda event: self.preview_colour(self.red_input.get(), self.green_input.get(),
+                                                               self.blue_input.get()))
 
         # Middle Section
         self.middle_section = tk.Frame(self.window, bg=self.background_colour)
@@ -180,11 +172,59 @@ class ColourPickerWindow:
                                                                                str(randint(0, 255))))
         self.blue_input_random.pack(side=tk.LEFT, padx=10)
 
+        # Menu Bar
+        self.main_menu = tk.Menu(self.window)
+
+        # Options Menu
+        self.options_menu = tk.Menu(self.main_menu, tearoff=False)
+
+        # Theme Menu
+        self.theme_menu = tk.Menu(self.options_menu, tearoff=False)
+        self.theme_menu.add_command(label="Default", command=lambda: self.change_theme("gainsboro"))
+        self.theme_menu.add_command(label="Dark", command=lambda: self.change_theme("grey55"))
+        self.theme_menu.add_command(label="Darker", command=lambda: self.change_theme("grey24"))
+        self.theme_menu.add_command(label="Super Dark", command=lambda: self.change_theme("grey6"))
+        self.theme_menu.add_command(label="Velvet", command=lambda: self.change_theme("brown4"))
+        self.theme_menu.add_command(label="Custom", command=lambda: self.change_theme(self.hex_input.get()))
+
+        self.options_menu.add_command(label="Turn off Delete Popup", command=self.toggle_delete_popup)
+        self.options_menu.add_cascade(label="Themes", menu=self.theme_menu)
+
+        self.main_menu.add_cascade(label="Options", menu=self.options_menu)
+        self.window.config(bg=self.background_colour, menu=self.main_menu)
         # Starts the window running
         self.window.mainloop()
 
+    def change_theme(self, new_colour: str):
+        try:
+            self.background_colour = new_colour
+            self.window.config(bg=self.background_colour)
+            self.top_section.config(bg=self.background_colour)
+            self.hex_value_section.config(bg=self.background_colour)
+            self.colour_inputs.config(bg=self.background_colour)
+            self.colour_inputs_random_buttons.config(bg=self.background_colour)
+            self.middle_section.config(bg=self.background_colour)
+            self.sliders.config(bg=self.background_colour)
+            self.bottom_section.config(bg=self.background_colour)
+            self.bottom_buttons.config(bg=self.background_colour)
+        except:
+            self.background_colour = new_colour
+            self.window.config(bg="gainsboro")
+            self.top_section.config(bg="gainsboro")
+            self.hex_value_section.config(bg="gainsboro")
+            self.colour_inputs.config(bg="gainsboro")
+            self.colour_inputs_random_buttons.config(bg="gainsboro")
+            self.middle_section.config(bg="gainsboro")
+            self.sliders.config(bg="gainsboro")
+            self.bottom_section.config(bg="gainsboro")
+            self.bottom_buttons.config(bg="gainsboro")
+
     def toggle_delete_popup(self) -> None:
         self.delete_popup = not self.delete_popup
+        if self.delete_popup:
+            self.options_menu.entryconfigure(0, label="Turn off Delete Popup")
+        else:
+            self.options_menu.entryconfigure(0, label="Turn on Delete Popup")
 
     def delete_all_colours(self):
         response = tk.messagebox.askyesno(title="Remove Colour",
@@ -246,7 +286,7 @@ class ColourPickerWindow:
             colour = hex_to_rgb(hex_string)
             self.preview_colour(colour[0], colour[1], colour[2])
         except:
-            self.preview_colour("0","0","0")
+            self.preview_colour("0", "0", "0")
 
     def remove_hex_colour(self, hex_string):
         if self.delete_popup:
