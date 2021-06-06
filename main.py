@@ -19,25 +19,43 @@ def hex_to_rgb(hex_string) -> (int, int, int):
 
 class ColourPickerWindow:
     def __init__(self):
+        # Attributes
         self.background_colour = "grey55"
+        self.delete_popup = True
+
         self.window = tk.Tk()
-        self.window.config(bg=self.background_colour)
+
+        # Menu Bar
+        self.main_menu = tk.Menu(self.window)
+
+        # Options Menu
+        self.options_menu = tk.Menu(self.main_menu, tearoff=False)
+        self.options_menu.add_command(label="Toggle Delete Popup", command=self.toggle_delete_popup)
+
+        self.main_menu.add_cascade(label="Options", menu=self.options_menu)
+
+        self.window.config(bg=self.background_colour, menu=self.main_menu)
         self.window.title("Colour Picker")
         self.window.geometry("600x600")
         self.window.minsize(400, 300)
 
         # Top Section
         self.top_section = tk.Frame(self.window, bg=self.background_colour)
-        self.top_section.pack(side=tk.TOP)
+        self.top_section.pack(side=tk.TOP, pady=10)
 
         # Colour Display
         self.colour_display = tk.Canvas(self.top_section, width=300, height=100, bg='#666', bd=1,
                                         highlightbackground="black")
-        self.colour_display.pack(pady=20, side=tk.TOP)
+        self.colour_display.pack(pady=10, side=tk.TOP)
 
         # Hex Value
         self.hex_value_section = tk.Frame(self.top_section, bg=self.background_colour)
         self.hex_value_section.pack(padx=10, pady=10, side=tk.TOP)
+
+        # Random Colour Button
+        self.random_colour = tk.Button(self.hex_value_section, text="Random Colour",
+                                       command=self.generate_random_colour)
+        self.random_colour.pack(side=tk.LEFT, padx=10)
 
         # Entry
         self.hex_input = tk.Entry(self.hex_value_section, textvariable=tk.StringVar(self.window, value='#000'))
@@ -129,35 +147,35 @@ class ColourPickerWindow:
         self.bottom_buttons = tk.Frame(self.bottom_section, bg=self.background_colour)
         self.bottom_buttons.pack(side=tk.TOP, pady=10)
 
-        self.random_colour = tk.Button(self.bottom_buttons, text="Random Colour", command=self.generate_random_colour)
-        self.random_colour.pack(side=tk.LEFT)
-
         self.delete_all = tk.Button(self.bottom_buttons, text="Delete All", command=self.delete_all_colours)
-        self.delete_all.pack(side=tk.LEFT, padx=10)
+        self.delete_all.pack(padx=10)
 
         # Red input randomizer
         self.red_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Red",
-                                          command=lambda:self.preview_colour(randint(0, 255),
-                                                                      self.green_input.get(),
-                                                                      self.blue_input.get()))
+                                          command=lambda: self.preview_colour(randint(0, 255),
+                                                                              self.green_input.get(),
+                                                                              self.blue_input.get()))
         self.red_input_random.pack(side=tk.LEFT, padx=10)
 
         # Green input randomizer
         self.green_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Green",
-                                            command=lambda:self.preview_colour(self.red_input.get(),
-                                                                        randint(0, 255),
-                                                                        self.blue_input.get()))
+                                            command=lambda: self.preview_colour(self.red_input.get(),
+                                                                                randint(0, 255),
+                                                                                self.blue_input.get()))
         self.green_input_random.pack(side=tk.LEFT, padx=10)
 
         # Blue input randomizer
         self.blue_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Blue",
-                                           command=lambda:self.preview_colour(self.red_input.get(),
-                                                                       self.green_input.get(),
-                                                                       randint(0, 255)))
+                                           command=lambda: self.preview_colour(self.red_input.get(),
+                                                                               self.green_input.get(),
+                                                                               randint(0, 255)))
         self.blue_input_random.pack(side=tk.LEFT, padx=10)
 
         # Starts the window running
         self.window.mainloop()
+
+    def toggle_delete_popup(self) -> None:
+        self.delete_popup = not self.delete_popup
 
     def delete_all_colours(self):
         response = tk.messagebox.askyesno(title="Remove Colour",
@@ -208,12 +226,17 @@ class ColourPickerWindow:
 
     def preview_hex_colour(self, hex_string):
         colour = hex_to_rgb(hex_string)
-        self.preview_colour(colour[0], colour[1], colour[2])  #
+        self.preview_colour(colour[0], colour[1], colour[2])
 
     def remove_hex_colour(self, hex_string):
-        response = tk.messagebox.askyesno(title="Remove Colour",
-                                          message=f"Are you sure you want to remove {hex_string} from the list?")
-        if response:
+        if self.delete_popup:
+            confirmation = tk.messagebox.askyesno(title="Remove Colour",
+                                                  message=f"Are you sure you want to remove {hex_string} from the "
+                                                          f"list?\n\nThis popup can be disabled in the options menu.")
+        else:
+            # If the delete popup has been disabled confirm the action automatically
+            confirmation = True
+        if confirmation:
             with open("colour_file.json", 'r') as file:
                 data = json.load(file)
                 colours = data
@@ -257,5 +280,4 @@ class ColourPickerWindow:
                     pass
 
 
-print(int("f", 16))
 value = ColourPickerWindow()
