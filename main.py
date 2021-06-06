@@ -9,12 +9,23 @@ from random import randint
 # saved for later hehe ^-^
 # https://stackoverflow.com/questions/4969543/colour-chart-for-tkinter-and-tix
 
-def hex_to_rgb(hex_string) -> (int, int, int):
+def hex_to_rgb(hex_string: str) -> tuple:
     string = hex_string[1:]
-    r = int(string[0] + string[1], 16)
-    g = int(string[2] + string[3], 16)
-    b = int(string[4] + string[5], 16)
+    r = f"{int(string[0] + string[1], 16)}"
+    g = f"{int(string[2] + string[3], 16)}"
+    b = f"{int(string[4] + string[5], 16)}"
     return r, g, b
+
+
+def check_valid_colour_value(colour_value: str) -> int:
+    try:
+        colour = int(colour_value)
+        if 0 <= colour < 256:
+            return colour
+        else:
+            return -1
+    except:
+        return -1
 
 
 class ColourPickerWindow:
@@ -72,26 +83,24 @@ class ColourPickerWindow:
 
         # Where randomise buttons will be added for each colour component
         self.colour_inputs_random_buttons = tk.Frame(self.top_section, bg=self.background_colour)
-        self.colour_inputs_random_buttons.pack(side=tk.TOP)
+        self.colour_inputs_random_buttons.pack(side=tk.TOP, pady=10)
 
         # Red input
         self.red_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.red_input.pack(side=tk.LEFT, padx=10)
-
+        self.red_input.bind("<KeyRelease>", lambda event:self.preview_colour(self.red_input.get(), self.green_input.get(),
+                                                                     self.blue_input.get()))
         # Green input
         self.green_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.green_input.pack(side=tk.LEFT, padx=10)
+        self.green_input.bind("<KeyRelease>", lambda event:self.preview_colour(self.red_input.get(), self.green_input.get(),
+                                                                     self.blue_input.get()))
 
         # Blue input
         self.blue_input = tk.Entry(self.colour_inputs, textvariable=tk.StringVar(self.window, value='0'))
         self.blue_input.pack(side=tk.LEFT, padx=10)
-
-        # Preview button
-        # TODO: Error checking on the preview button
-        self.preview = tk.Button(self.colour_inputs, text="Preview",
-                                 command=lambda: self.preview_colour(self.red_input.get(), self.green_input.get(),
+        self.blue_input.bind("<KeyRelease>", lambda event:self.preview_colour(self.red_input.get(), self.green_input.get(),
                                                                      self.blue_input.get()))
-        self.preview.pack(padx=10, pady=10, side=tk.RIGHT)
 
         # Middle Section
         self.middle_section = tk.Frame(self.window, bg=self.background_colour)
@@ -152,7 +161,7 @@ class ColourPickerWindow:
 
         # Red input randomizer
         self.red_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Red",
-                                          command=lambda: self.preview_colour(randint(0, 255),
+                                          command=lambda: self.preview_colour(str(randint(0, 255)),
                                                                               self.green_input.get(),
                                                                               self.blue_input.get()))
         self.red_input_random.pack(side=tk.LEFT, padx=10)
@@ -160,7 +169,7 @@ class ColourPickerWindow:
         # Green input randomizer
         self.green_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Green",
                                             command=lambda: self.preview_colour(self.red_input.get(),
-                                                                                randint(0, 255),
+                                                                                str(randint(0, 255)),
                                                                                 self.blue_input.get()))
         self.green_input_random.pack(side=tk.LEFT, padx=10)
 
@@ -168,7 +177,7 @@ class ColourPickerWindow:
         self.blue_input_random = tk.Button(self.colour_inputs_random_buttons, text="Randomise Blue",
                                            command=lambda: self.preview_colour(self.red_input.get(),
                                                                                self.green_input.get(),
-                                                                               randint(0, 255)))
+                                                                               str(randint(0, 255))))
         self.blue_input_random.pack(side=tk.LEFT, padx=10)
 
         # Starts the window running
@@ -188,7 +197,7 @@ class ColourPickerWindow:
         self.display_colours()
 
     def generate_random_colour(self):
-        self.preview_colour(randint(0, 255), randint(0, 255), randint(0, 255))
+        self.preview_colour(f"{randint(0, 255)}", f"{randint(0, 255)}", f"{randint(0, 255)}")
 
     def add_to_file(self, hex_string):
         colours = None
@@ -209,24 +218,35 @@ class ColourPickerWindow:
             json.dump(colours, file)
         self.display_colours()
 
-    def preview_colour(self, red: int = 0, green: int = 0, blue: int = 0):
-        colour = f"#{int(red):02x}{int(green):02x}{int(blue):02x}"
+    def preview_colour(self, red: str, green: str, blue: str):
+
+        validated_red = check_valid_colour_value(red)
+        validated_green = check_valid_colour_value(green)
+        validated_blue = check_valid_colour_value(blue)
+
+        colour = f"#{validated_red if validated_red != -1 else 0:02x}{validated_green if validated_green != -1 else 0:02x}{validated_blue if validated_blue != -1 else 0:02x}"
         self.hex_input.delete(0, "end")
         self.hex_input.insert(0, colour)
         self.colour_display.config(bg=colour)
-        self.red_input.delete(0, "end")
-        self.red_input.insert(0, red)
-        self.green_input.delete(0, "end")
-        self.green_input.insert(0, green)
-        self.blue_input.delete(0, "end")
-        self.blue_input.insert(0, blue)
-        self.red_slider.set(red)
-        self.green_slider.set(green)
-        self.blue_slider.set(blue)
+        if validated_red != -1:
+            self.red_input.delete(0, "end")
+            self.red_input.insert(0, red)
+        if validated_green != -1:
+            self.green_input.delete(0, "end")
+            self.green_input.insert(0, green)
+        if validated_blue != -1:
+            self.blue_input.delete(0, "end")
+            self.blue_input.insert(0, blue)
+        self.red_slider.set(validated_red)
+        self.green_slider.set(validated_green)
+        self.blue_slider.set(validated_blue)
 
-    def preview_hex_colour(self, hex_string):
-        colour = hex_to_rgb(hex_string)
-        self.preview_colour(colour[0], colour[1], colour[2])
+    def preview_hex_colour(self, hex_string: str):
+        try:
+            colour = hex_to_rgb(hex_string)
+            self.preview_colour(colour[0], colour[1], colour[2])
+        except:
+            self.preview_colour("0","0","0")
 
     def remove_hex_colour(self, hex_string):
         if self.delete_popup:
