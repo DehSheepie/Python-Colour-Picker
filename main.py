@@ -4,28 +4,11 @@ import json
 from os import path
 from os import remove as rm
 from random import randint
+import functions
 
 
 # saved for later hehe ^-^
 # https://stackoverflow.com/questions/4969543/colour-chart-for-tkinter-and-tix
-
-def hex_to_rgb(hex_string: str) -> tuple:
-    string = hex_string[1:]
-    r = f"{int(string[0] + string[1], 16)}"
-    g = f"{int(string[2] + string[3], 16)}"
-    b = f"{int(string[4] + string[5], 16)}"
-    return r, g, b
-
-
-def check_valid_colour_value(colour_value: str) -> int:
-    try:
-        colour = int(colour_value)
-        if 0 <= colour < 256:
-            return colour
-        else:
-            return -1
-    except:
-        return -1
 
 
 class ColourPickerWindow:
@@ -33,6 +16,8 @@ class ColourPickerWindow:
         # Attributes
         self.background_colour = "grey55"
         self.delete_popup = True
+        self.colour_file = "colour_file.json"
+        self.colour_list = "list"
 
         self.window = tk.Tk()
         self.window.title("Colour Picker")
@@ -230,7 +215,7 @@ class ColourPickerWindow:
         response = tk.messagebox.askyesno(title="Remove Colour",
                                           message=f"Are you sure you want to remove all colours from the list?\nThis action cannot be undone.")
         if response:
-            if path.exists("colour_file.json"):
+            if path.exists(self.colour_file):
                 rm("colour_file.json")
             else:
                 tk.messagebox.showinfo(title="No Colours", message="No colours could be found in storage.")
@@ -241,28 +226,28 @@ class ColourPickerWindow:
 
     def add_to_file(self, hex_string):
         colours = None
-        if not path.exists("colour_file.json"):
-            file = open("colour_file.json", "w+")
-        with open("colour_file.json") as file:
+        if not path.exists(self.colour_file):
+            file = open(self.colour_file, "w+")
+        with open(self.colour_file) as file:
             try:
                 data = json.load(file)
                 try:
                     colours = data
-                    colours["list"].append(hex_string)
+                    colours[self.colour_list].append(hex_string)
                 except ValueError:
                     print(f"Exception {ValueError}")
                     colours = {"list": [hex_string]}
             except:
                 colours = {"list": [hex_string]}
-        with open("colour_file.json", "w") as file:
+        with open(self.colour_file, "w") as file:
             json.dump(colours, file)
         self.display_colours()
 
     def preview_colour(self, red: str, green: str, blue: str):
 
-        validated_red = check_valid_colour_value(red)
-        validated_green = check_valid_colour_value(green)
-        validated_blue = check_valid_colour_value(blue)
+        validated_red = functions.check_valid_colour_value(red)
+        validated_green = functions.check_valid_colour_value(green)
+        validated_blue = functions.check_valid_colour_value(blue)
 
         colour = f"#{validated_red if validated_red != -1 else 0:02x}{validated_green if validated_green != -1 else 0:02x}{validated_blue if validated_blue != -1 else 0:02x}"
         self.hex_input.delete(0, "end")
@@ -283,7 +268,7 @@ class ColourPickerWindow:
 
     def preview_hex_colour(self, hex_string: str):
         try:
-            colour = hex_to_rgb(hex_string)
+            colour = functions.hex_to_rgb(hex_string)
             self.preview_colour(colour[0], colour[1], colour[2])
         except:
             self.preview_colour("0", "0", "0")
@@ -300,7 +285,7 @@ class ColourPickerWindow:
             with open("colour_file.json", 'r') as file:
                 data = json.load(file)
                 colours = data
-                colours["list"].remove(hex_string)
+                colours[self.colour_list].remove(hex_string)
 
             with open("colour_file.json", 'w') as file:
                 file.write(json.dumps(colours))
@@ -319,9 +304,9 @@ class ColourPickerWindow:
                     ypos = 0
                     for row in range(4):
                         for col in range(12):
-                            if index < len(data["list"]):
+                            if index < len(data[self.colour_list]):
                                 rect = self.display_stored_colours.create_rectangle(xpos, ypos, xpos + 25, ypos + 25,
-                                                                                    fill=data["list"][index])
+                                                                                    fill=data[self.colour_list][index])
                                 self.display_stored_colours.tag_bind(rect, "<Button-1>", lambda event,
                                                                                                 hex=self.display_stored_colours.itemcget(
                                                                                                     rect,
